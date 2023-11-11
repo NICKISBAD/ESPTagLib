@@ -12,16 +12,23 @@ function ESPLib:CreateESPTag(params)
     local TextSize = params.TextSize
     local TextColor = params.TextColor
     local BoxColor = params.BoxColor
-    local Mode = params.Mode or "tracer"
-    local TracerColor = params.TracerColor or Color3.new(255, 255, 255)
-    local TracerWidth = params.TracerWidth or 2
-    local TrailColor = params.TrailColor or Color3.new(255, 255, 255)
-    local TrailWidth = params.TrailWidth or 2
+    local TracerColor = params.TracerColor or Color3.new(255, 255, 255)  -- Default tracer color is white
+    local TrailMode = params.TrailMode or false -- Default to regular tracer mode
+    local TrailColor = params.TrailColor or {Color3.new(255, 0, 0)} -- Default trail color is red
+    local TrailWidth = params.TrailWidth or {2} -- Default trail width is 2
+
+    if #TrailColor < 2 then
+        TrailColor[2] = TrailColor[1] -- Duplicate the color if only one is provided
+    end
+
+    if #TrailWidth < 2 then
+        TrailWidth[2] = TrailWidth[1] -- Duplicate the width if only one is provided
+    end
 
     local esp = Instance.new("BillboardGui")
     esp.Name = "esp"
     esp.Size = UDim2.new(0, 200, 0, 50)
-    esp.StudsOffset = Vector3.new(0, Part.Size.Y + 2, 0)
+    esp.StudsOffset = Vector3.new(0, Part.Size.Y + 2, 0) -- Adjusted offset for the label above the head
     esp.Adornee = Part
     esp.Parent = Part
     esp.AlwaysOnTop = true
@@ -52,23 +59,20 @@ function ESPLib:CreateESPTag(params)
     local tracerLine = Drawing.new("Line")
     tracerLine.Visible = false
 
-    local trailLine = Instance.new("Trail")
-    trailLine.Attachment0 = player.Character:WaitForChild("HumanoidRootPart").CFrame
-    trailLine.Attachment1 = Part.CFrame
-    trailLine.Color = TrailColor
-    trailLine.LightEmission = 1
-    trailLine.Transparency = NumberSequence.new(0, 0.5)
-    trailLine.TextureMode = Enum.TextureMode.Wrap
-    trailLine.TextureLength = 1
-    trailLine.TextureSpeed = 0.5
-    trailLine.WidthScale = TrailWidth
-    trailLine.Lifetime = 1
+    local trail = Instance.new("Trail")
+    trail.Attachment0 = Part.Position
+    trail.Attachment1 = Part.Position
+    trail.Enabled = false
+    trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
+    trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+    trail.Parent = Part
 
     local function updateesplabelfr()
         if not Part or not Part:IsA("BasePart") or not Part.Parent then
+            -- Part no longer exists, delete ESP elements
             esp:Destroy()
             tracerLine:Remove()
-            trailLine:Destroy()
+            trail:Destroy()
             return
         end
 
@@ -86,60 +90,47 @@ function ESPLib:CreateESPTag(params)
                 box.Adornee = Part
                 box.Visible = true
 
-                if Mode == "tracer" then
-                    local tracerStart = camera:WorldToViewportPoint(player.Character.Head.Position)
-                    local tracerEnd = camera:WorldToViewportPoint(headPosition)
-                    tracerLine.From = Vector2.new(tracerStart.X, tracerStart.Y)
-                    tracerLine.To = Vector2.new(tracerEnd.X, tracerEnd.Y)
-                    tracerLine.Color = TracerColor
-                    tracerLine.Thickness = TracerWidth
-                    tracerLine.Visible = true
-                elseif Mode == "trail" then
-                    trailLine.Attachment0 = player.Character:WaitForChild("HumanoidRootPart").CFrame
-                    trailLine.Attachment1 = Part.CFrame
-                    trailLine.Color = TrailColor
-                    trailLine.WidthScale = TrailWidth
-                    trailLine.Visible = true
-                end
+                -- Update tracer line points
+                local tracerStart = camera:WorldToViewportPoint(player.Character.Head.Position)
+                local tracerEnd = camera:WorldToViewportPoint(Part.Position)
+                tracerLine.From = Vector2.new(tracerStart.X, tracerStart.Y)
+                tracerLine.To = Vector2.new(tracerEnd.X, tracerEnd.Y)
+                tracerLine.Color = TracerColor
+                tracerLine.Thickness = 2 -- Adjust the thickness of the line (increased from 1)
+                tracerLine.Visible = not TrailMode
+
+                -- Update trail
+                trail.Attachment1 = Part.Position
+                trail.Enabled = TrailMode
+                trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
+                trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
             else
                 esp.Enabled = false
                 box.Visible = false
                 tracerLine.Visible = false
-                trailLine.Visible = false
+                trail.Enabled = false
             end
         else
             esp.Enabled = false
             box.Visible = false
             tracerLine.Visible = false
-            trailLine.Visible = false
+            trail.Enabled = false
         end
     end
 
     RunService.RenderStepped:Connect(updateesplabelfr)
 end
 
--- Usage (1, Tracer Mode)
+
+-- Usage
 
 ESPLib:CreateESPTag({
-    Text = "ExampleName",
-    Part = game.Workspace:WaitForChild("Part"), -- the part
-    TextSize = 9, -- Modify size of text as intended :D
+    Text = "example",
+    Part = workspace.Part, -- Replace 'Part' with the actual reference to your part
+    TextSize = 5,
     TextColor = Color3.new(255, 255, 255),
-    BoxColor = Color3.new(255, 255, 255),
-    Mode = "tracer", -- Specify "tracer" case sensitive
-    TracerColor = Color3.new(255, 0, 0),
-    TracerWidth = 3 -- Customize tracer width if needed
-})
-
--- Usage (2, Trail Mode)
-
-ESPLib:CreateESPTag({
-    Text = "ExampleName",
-    Part = game.Workspace:WaitForChild("Part"), -- the part 2
-    TextSize = 9, -- Modify size of text as intended :D (x2)
-    TextColor = Color3.new(255, 0, 0),
-    BoxColor = Color3.new(255, 0, 0),
-    Mode = "trail", -- Specify "trail" case sensitive
-    TrailColor = Color3.new(255, 0, 0),
-    TrailWidth = 4 -- Customize trail width if needed
+    BoxColor = Color3.new(0, 0, 255),
+    TrailMode = true, -- Set to true for trail mode, false for regular tracer mode
+    TrailColor = {Color3.new(0, 255, 0), Color3.new(0, 0, 255)}, -- Set the trail color sequence
+    TrailWidth = {2, 4} -- Set the trail width sequence
 })
