@@ -10,16 +10,12 @@ function ESPLib:CreateESPTag(params)
     local TextSize = params.TextSize
     local TextColor = params.TextColor
     local BoxColor = params.BoxColor
-    local Mode = params.Mode or "tracer"
-    local TracerColor = params.TracerColor or Color3.new(255, 255, 255)
-    local TracerWidth = params.TracerWidth or 2
-    local TrailColor = params.TrailColor or Color3.new(255, 255, 255)
-    local TrailWidth = params.TrailWidth or 2
+    local TracerColor = params.TracerColor or Color3.new(255, 255, 255)  -- Default tracer color is white
 
     local esp = Instance.new("BillboardGui")
     esp.Name = "esp"
     esp.Size = UDim2.new(0, 200, 0, 50)
-    esp.StudsOffset = Vector3.new(0, Part.Size.Y + 2, 0)
+    esp.StudsOffset = Vector3.new(0, Part.Size.Y + 2, 0) -- Adjusted offset for the label above the head
     esp.Adornee = Part
     esp.Parent = Part
     esp.AlwaysOnTop = true
@@ -50,23 +46,11 @@ function ESPLib:CreateESPTag(params)
     local tracerLine = Drawing.new("Line")
     tracerLine.Visible = false
 
-    local trailLine = Instance.new("Trail")
-    trailLine.Attachment0 = player.Character:WaitForChild("HumanoidRootPart").CFrame
-    trailLine.Attachment1 = Part.CFrame
-    trailLine.Color = TrailColor
-    trailLine.LightEmission = 1
-    trailLine.Transparency = NumberSequence.new(0, 0.5)
-    trailLine.TextureMode = Enum.TextureMode.Wrap
-    trailLine.TextureLength = 1
-    trailLine.TextureSpeed = 0.5
-    trailLine.WidthScale = TrailWidth
-    trailLine.Lifetime = 1
-
     local function updateesplabelfr()
         if not Part or not Part:IsA("BasePart") or not Part.Parent then
+            -- Part no longer exists, delete ESP elements
             esp:Destroy()
             tracerLine:Remove()
-            trailLine:Destroy()
             return
         end
 
@@ -84,32 +68,23 @@ function ESPLib:CreateESPTag(params)
                 box.Adornee = Part
                 box.Visible = true
 
-                if Mode == "tracer" then
-                    local tracerStart = camera:WorldToViewportPoint(player.Character.Head.Position)
-                    local tracerEnd = camera:WorldToViewportPoint(headPosition)
-                    tracerLine.From = Vector2.new(tracerStart.X, tracerStart.Y)
-                    tracerLine.To = Vector2.new(tracerEnd.X, tracerEnd.Y)
-                    tracerLine.Color = TracerColor
-                    tracerLine.Thickness = TracerWidth
-                    tracerLine.Visible = true
-                elseif Mode == "trail" then
-                    trailLine.Attachment0 = player.Character:WaitForChild("HumanoidRootPart").CFrame
-                    trailLine.Attachment1 = Part.CFrame
-                    trailLine.Color = TrailColor
-                    trailLine.WidthScale = TrailWidth
-                    trailLine.Visible = true
-                end
+                -- Update tracer line points
+                local tracerStart = camera:WorldToViewportPoint(player.Character.Head.Position)
+                local tracerEnd = camera:WorldToViewportPoint(Part.Position)
+                tracerLine.From = Vector2.new(tracerStart.X, tracerStart.Y)
+                tracerLine.To = Vector2.new(tracerEnd.X, tracerEnd.Y)
+                tracerLine.Color = TracerColor
+                tracerLine.Thickness = 2 -- Adjust the thickness of the line (increased from 1)
+                tracerLine.Visible = true
             else
                 esp.Enabled = false
                 box.Visible = false
                 tracerLine.Visible = false
-                trailLine.Visible = false
             end
         else
             esp.Enabled = false
             box.Visible = false
             tracerLine.Visible = false
-            trailLine.Visible = false
         end
     end
 
