@@ -1,5 +1,7 @@
+-- Initialize function()
+
 local ESPLib = {}
---------------------------------------------------------------------------------
+
 function ESPLib:CreateESPTag(params)
     local RunService = game:GetService("RunService")
     local player = game.Players.LocalPlayer
@@ -10,11 +12,16 @@ function ESPLib:CreateESPTag(params)
     local TextSize = params.TextSize
     local TextColor = params.TextColor
     local BoxColor = params.BoxColor
+    local Mode = params.Mode or "tracer"
+    local TracerColor = params.TracerColor or Color3.new(255, 255, 255)
+    local TracerWidth = params.TracerWidth or 2
+    local TrailColor = params.TrailColor or Color3.new(255, 255, 255)
+    local TrailWidth = params.TrailWidth or 2
 
     local esp = Instance.new("BillboardGui")
     esp.Name = "esp"
     esp.Size = UDim2.new(0, 200, 0, 50)
-    esp.StudsOffset = Vector3.new(0, 1.5, 0) -- Offset to raise the label slightly
+    esp.StudsOffset = Vector3.new(0, Part.Size.Y + 2, 0)
     esp.Adornee = Part
     esp.Parent = Part
     esp.AlwaysOnTop = true
@@ -23,12 +30,13 @@ function ESPLib:CreateESPTag(params)
     esplabelfr.Name = "esplabelfr"
     esplabelfr.Size = UDim2.new(1, 0, 0, 70)
     esplabelfr.BackgroundColor3 = Color3.new(0, 0, 0)
-    esplabelfr.TextColor3 = TextColor or Color3.fromRGB(255, 255, 255) -- Use provided color or default white
+    esplabelfr.TextColor3 = TextColor or Color3.fromRGB(255, 255, 255)
     esplabelfr.BackgroundTransparency = 1
     esplabelfr.TextStrokeTransparency = 0
     esplabelfr.TextStrokeColor3 = Color3.new(0, 0, 0)
     esplabelfr.TextSize = TextSize
     esplabelfr.TextScaled = false
+    esplabelfr.Font = "Arcade"
     esplabelfr.Parent = esp
 
     local box = Instance.new("BoxHandleAdornment")
@@ -41,7 +49,29 @@ function ESPLib:CreateESPTag(params)
     box.ZIndex = 0
     box.Parent = Part
 
+    local tracerLine = Drawing.new("Line")
+    tracerLine.Visible = false
+
+    local trailLine = Instance.new("Trail")
+    trailLine.Attachment0 = player.Character:WaitForChild("HumanoidRootPart").CFrame
+    trailLine.Attachment1 = Part.CFrame
+    trailLine.Color = TrailColor
+    trailLine.LightEmission = 1
+    trailLine.Transparency = NumberSequence.new(0, 0.5)
+    trailLine.TextureMode = Enum.TextureMode.Wrap
+    trailLine.TextureLength = 1
+    trailLine.TextureSpeed = 0.5
+    trailLine.WidthScale = TrailWidth
+    trailLine.Lifetime = 1
+
     local function updateesplabelfr()
+        if not Part or not Part:IsA("BasePart") or not Part.Parent then
+            esp:Destroy()
+            tracerLine:Remove()
+            trailLine:Destroy()
+            return
+        end
+
         local playerPosition = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if playerPosition then
             local distance = (playerPosition.Position - Part.Position).Magnitude
@@ -55,46 +85,61 @@ function ESPLib:CreateESPTag(params)
                 esp.Enabled = true
                 box.Adornee = Part
                 box.Visible = true
+
+                if Mode == "tracer" then
+                    local tracerStart = camera:WorldToViewportPoint(player.Character.Head.Position)
+                    local tracerEnd = camera:WorldToViewportPoint(headPosition)
+                    tracerLine.From = Vector2.new(tracerStart.X, tracerStart.Y)
+                    tracerLine.To = Vector2.new(tracerEnd.X, tracerEnd.Y)
+                    tracerLine.Color = TracerColor
+                    tracerLine.Thickness = TracerWidth
+                    tracerLine.Visible = true
+                elseif Mode == "trail" then
+                    trailLine.Attachment0 = player.Character:WaitForChild("HumanoidRootPart").CFrame
+                    trailLine.Attachment1 = Part.CFrame
+                    trailLine.Color = TrailColor
+                    trailLine.WidthScale = TrailWidth
+                    trailLine.Visible = true
+                end
             else
                 esp.Enabled = false
                 box.Visible = false
+                tracerLine.Visible = false
+                trailLine.Visible = false
             end
         else
             esp.Enabled = false
             box.Visible = false
+            tracerLine.Visible = false
+            trailLine.Visible = false
         end
     end
 
     RunService.RenderStepped:Connect(updateesplabelfr)
 end
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-function ESPLib:PlayerESP()
-    for i, player in pairs(game.Players:GetChildren()) do
-        if player:IsA("Player") and player.Name ~= game.Players.LocalPlayer.Name then
-            ESPLib:CreateESPTag({
-                Text = player.DisplayName .. "/" .. player.Name,
-                Part = player.Character.UpperTorso or player.Character.Torso,
-                TextSize = 5,
-                TextColor = Color3.new(255, 255, 255),
-                BoxColor = Color3.new(255, 255, 255)
-            })
-        end
-    end
-end
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
+-- Usage (1, Tracer Mode)
 
 ESPLib:CreateESPTag({
-    Text = "ExamplePart",
-    Part = game.Workspace:FindFirstChild("PartName")
-    TextSize = 20,
+    Text = "ExampleName",
+    Part = game.Workspace:WaitForChild("Part"), -- the part
+    TextSize = 9, -- Modify size of text as intended :D
     TextColor = Color3.new(255, 255, 255),
-    BoxColor = Color3.new(255,255,255)
+    BoxColor = Color3.new(255, 255, 255),
+    Mode = "tracer", -- Specify "tracer" case sensitive
+    TracerColor = Color3.new(255, 0, 0),
+    TracerWidth = 3 -- Customize tracer width if needed
 })
 
-ESPLib:PlayerESP()
+-- Usage (2, Trail Mode)
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
+ESPLib:CreateESPTag({
+    Text = "ExampleName",
+    Part = game.Workspace:WaitForChild("Part"), -- the part 2
+    TextSize = 9, -- Modify size of text as intended :D (x2)
+    TextColor = Color3.new(255, 0, 0),
+    BoxColor = Color3.new(255, 0, 0),
+    Mode = "trail", -- Specify "trail" case sensitive
+    TrailColor = Color3.new(255, 0, 0),
+    TrailWidth = 4 -- Customize trail width if needed
+})
