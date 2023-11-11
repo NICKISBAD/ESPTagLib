@@ -11,6 +11,17 @@ function ESPLib:CreateESPTag(params)
     local TextColor = params.TextColor
     local BoxColor = params.BoxColor
     local TracerColor = params.TracerColor or Color3.new(255, 255, 255)  -- Default tracer color is white
+    local TrailMode = params.TrailMode or false -- Default to regular tracer mode
+    local TrailColor = params.TrailColor or {Color3.new(255, 0, 0)} -- Default trail color is red
+    local TrailWidth = params.TrailWidth or {2} -- Default trail width is 2
+
+    if #TrailColor < 2 then
+        TrailColor[2] = TrailColor[1] -- Duplicate the color if only one is provided
+    end
+
+    if #TrailWidth < 2 then
+        TrailWidth[2] = TrailWidth[1] -- Duplicate the width if only one is provided
+    end
 
     local esp = Instance.new("BillboardGui")
     esp.Name = "esp"
@@ -46,11 +57,20 @@ function ESPLib:CreateESPTag(params)
     local tracerLine = Drawing.new("Line")
     tracerLine.Visible = false
 
+    local trail = Instance.new("Trail")
+    trail.Attachment0 = Part.Position
+    trail.Attachment1 = Part.Position
+    trail.Enabled = false
+    trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
+    trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+    trail.Parent = Part
+
     local function updateesplabelfr()
         if not Part or not Part:IsA("BasePart") or not Part.Parent then
             -- Part no longer exists, delete ESP elements
             esp:Destroy()
             tracerLine:Remove()
+            trail:Destroy()
             return
         end
 
@@ -75,16 +95,24 @@ function ESPLib:CreateESPTag(params)
                 tracerLine.To = Vector2.new(tracerEnd.X, tracerEnd.Y)
                 tracerLine.Color = TracerColor
                 tracerLine.Thickness = 2 -- Adjust the thickness of the line (increased from 1)
-                tracerLine.Visible = true
+                tracerLine.Visible = not TrailMode
+
+                -- Update trail
+                trail.Attachment1 = Part.Position
+                trail.Enabled = TrailMode
+                trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
+                trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
             else
                 esp.Enabled = false
                 box.Visible = false
                 tracerLine.Visible = false
+                trail.Enabled = false
             end
         else
             esp.Enabled = false
             box.Visible = false
             tracerLine.Visible = false
+            trail.Enabled = false
         end
     end
 
