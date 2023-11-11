@@ -1,4 +1,4 @@
-function CreateESPTag(params)
+local function CreateESPTag(params)
     local RunService = game:GetService("RunService")
     local player = game.Players.LocalPlayer
     local camera = game:GetService("Workspace").CurrentCamera
