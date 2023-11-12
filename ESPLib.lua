@@ -1,3 +1,5 @@
+-- Initialize function()
+
 local ESPLib = {}
 
 function ESPLib:CreateESPTag(params)
@@ -10,13 +12,13 @@ function ESPLib:CreateESPTag(params)
     local TextSize = params.TextSize
     local TextColor = params.TextColor
     local BoxColor = params.BoxColor
-    local TracerColor = params.TracerColor or Color3.new(255, 255, 255)  -- Default tracer color is white
-    local TrailMode = params.TrailMode or false -- Default to regular tracer mode
-    local TrailColor = params.TrailColor or {Color3.new(255, 0, 0)} -- Default trail color is red
-    local TrailWidth = params.TrailWidth or {2} -- Default trail width is 2
+    local TracerColor = params.TracerColor or Color3.new(255, 255, 255) 
+    local TrailMode = params.TrailMode or false
+    local TrailColor = params.TrailColor or {Color3.new(255, 0, 0)} 
+    local TrailWidth = params.TrailWidth or {2}
 
     if #TrailColor < 2 then
-        TrailColor[2] = TrailColor[1] -- Duplicate the color if only one is provided
+        TrailColor[2] = TrailColor[1]
     end
 
     if #TrailWidth < 2 then
@@ -58,12 +60,13 @@ function ESPLib:CreateESPTag(params)
     tracerLine.Visible = false
 
     local trail = Instance.new("Trail")
-    trail.Attachment0 = Part.Position
-    trail.Attachment1 = Part.Position
+    trail.Attachment0 = Instance.new("Attachment", game.Players.LocalPlayer.Character.Torso)
+    trail.Attachment1 = Instance.new("Attachment", Part)
     trail.Enabled = false
     trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
-    trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+    trail.WidthScale = NumberSequence.new(TrailWidth[1], TrailWidth[2])
     trail.Parent = Part
+    trail.Lifetime = 0.2
 
     local function updateesplabelfr()
         if not Part or not Part:IsA("BasePart") or not Part.Parent then
@@ -98,10 +101,11 @@ function ESPLib:CreateESPTag(params)
                 tracerLine.Visible = not TrailMode
 
                 -- Update trail
-                trail.Attachment1 = Part.Position
+                trail.Attachment1 = Part.Attachment
+                trail.Lifetime = 0.3
                 trail.Enabled = TrailMode
                 trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
-                trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+                trail.WidthScale = NumberSequence.new(TrailWidth[1], TrailWidth[2])
             else
                 esp.Enabled = false
                 box.Visible = false
