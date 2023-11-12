@@ -60,11 +60,11 @@ function ESPLib:CreateESPTag(params)
     tracerLine.Visible = false
 
     local trail = Instance.new("Trail")
-    trail.Attachment0 = Part.Position
-    trail.Attachment1 = Part.Position
+    trail.Attachment0 = Instance.new("Attachment", game.Players.LocalPlayer.Character.Torso)
+    trail.Attachment1 = Instance.new("Attachment", Part)
     trail.Enabled = false
     trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
-    trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+    trail.TrailWidth = NumberSequence.new(TrailWidth[1], TrailWidth[2])
     trail.Parent = Part
 
     local function updateesplabelfr()
@@ -103,7 +103,7 @@ function ESPLib:CreateESPTag(params)
                 trail.Attachment1 = Part.Position
                 trail.Enabled = TrailMode
                 trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
-                trail.Width = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+                trail.TrailWidth = NumberSequence.new(TrailWidth[1], TrailWidth[2])
             else
                 esp.Enabled = false
                 box.Visible = false
