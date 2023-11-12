@@ -66,6 +66,7 @@ function ESPLib:CreateESPTag(params)
     trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
     trail.WidthScale = NumberSequence.new(TrailWidth[1], TrailWidth[2])
     trail.Parent = Part
+    trail.Texture = "rbxassetid://188166667"
     trail.Lifetime = 0.2
 
     local function updateesplabelfr()
