@@ -64,8 +64,9 @@ function ESPLib:CreateESPTag(params)
     trail.Attachment1 = Instance.new("Attachment", Part)
     trail.Enabled = false
     trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
-    trail.TrailWidth = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+    trail.WidthScale = NumberSequence.new(TrailWidth[1], TrailWidth[2])
     trail.Parent = Part
+    trail.Lifetime = 0.2
 
     local function updateesplabelfr()
         if not Part or not Part:IsA("BasePart") or not Part.Parent then
@@ -100,10 +101,11 @@ function ESPLib:CreateESPTag(params)
                 tracerLine.Visible = not TrailMode
 
                 -- Update trail
-                trail.Attachment1 = Part.Position
+                trail.Attachment1 = Part.Attachment
+                trail.Lifetime = 0.3
                 trail.Enabled = TrailMode
                 trail.Color = ColorSequence.new(TrailColor[1], TrailColor[2])
-                trail.TrailWidth = NumberSequence.new(TrailWidth[1], TrailWidth[2])
+                trail.WidthScale = NumberSequence.new(TrailWidth[1], TrailWidth[2])
             else
                 esp.Enabled = false
                 box.Visible = false
@@ -125,12 +127,12 @@ end
 -- Usage
 
 ESPLib:CreateESPTag({
-    Text = "example",
-    Part = workspace.Part, -- Replace 'Part' with the actual reference to your part
-    TextSize = 5,
+    Text = "ExampleName",
+    Part = game.Workspace.Part, -- Replace 'Part' with the actual reference to your part
+    TextSize = 7,
     TextColor = Color3.new(255, 255, 255),
-    BoxColor = Color3.new(0, 0, 255),
-    TrailMode = true, -- Set to true for trail mode, false for regular tracer mode
-    TrailColor = {Color3.new(0, 255, 0), Color3.new(0, 0, 255)}, -- Set the trail color sequence
-    TrailWidth = {2, 4} -- Set the trail width sequence
+    BoxColor = Color3.new(255, 255, 255),
+    TrailMode = true, -- Set to true for trail mode, false for regular tracer mode, if tracer mode then don't write next 2 lines
+    TrailColor = {Color3.new(255, 255, 255), Color3.new(255, 255, 255)}, -- Set the trail color sequence
+    TrailWidth = {1, 1.25} -- Set the trail width sequence
 })
