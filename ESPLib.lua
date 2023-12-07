@@ -1,6 +1,5 @@
 -- Initialize function()
 
-local ESPLib = {}
 
 function ESPLib:CreateESPTag(params)
     local RunService = game:GetService("RunService")
