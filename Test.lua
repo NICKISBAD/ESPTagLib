@@ -25,7 +25,7 @@ local humanoid = _G.Settings.Part:FindFirstChildOfClass("Humanoid") or _G.Settin
     if _G.Settings.2D_Outline.Enabled then
         local outlineOuter = Instance.new("BoxHandleAdornment")
         outlineOuter.Size = _G.Settings.Part.Size + Vector3.new(0.5, 0.5, 0.5)
-        outlineOuter.Color3 = _G.Settings._2D_Outline.Color
+        outlineOuter.Color3 = _G.Settings.2D_Outline.Color
         outlineOuter.Transparency = 0.5
         outlineOuter.AlwaysOnTop = true
         outlineOuter.Adornee = _G.Settings.Part
