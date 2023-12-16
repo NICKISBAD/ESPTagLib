@@ -10,7 +10,6 @@ end
 -- Check if the part has a Humanoid
 local humanoid = _G.Settings.Part:FindFirstChildOfClass("Humanoid") or _G.Settings.Part.Parent:FindFirstChild("Humanoid")
 
-if humanoid then
     -- Box
     if _G.Settings.Boxes.Enabled then
         local box = Instance.new("BoxHandleAdornment")
@@ -23,7 +22,7 @@ if humanoid then
     end
 
     -- 2D Outline (Outer)
-    if _G.Settings._2D_Outline.Enabled then
+    if _G.Settings.2D_Outline.Enabled then
         local outlineOuter = Instance.new("BoxHandleAdornment")
         outlineOuter.Size = _G.Settings.Part.Size + Vector3.new(0.5, 0.5, 0.5)
         outlineOuter.Color3 = _G.Settings._2D_Outline.Color
@@ -34,7 +33,7 @@ if humanoid then
     end
 
     -- 2D Outline (Inner - Box)
-    if _G.Settings._2D_Outline.Enabled then
+    if _G.Settings.2D_Outline.Enabled then
         local outlineInnerBox = Instance.new("BoxHandleAdornment")
         outlineInnerBox.Size = _G.Settings.Part.Size + Vector3.new(0.3, 0.3, 0.3)
         outlineInnerBox.Color3 = Color3.new(0.7, 1, 0.7) -- Light-ish green
@@ -85,4 +84,4 @@ if humanoid then
     end)
 else
     warn("The part does not have a Humanoid. Health and stats won't be displayed.")
-end
+
