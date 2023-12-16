@@ -8,7 +8,7 @@ if _G.DestroyESP then
 end
 
 -- Check if the part has a Humanoid
-local humanoid = _G.Settings.Part:FindFirstChildOfClass("Humanoid")
+local humanoid = _G.Settings.Part:FindFirstChildOfClass("Humanoid") or _G.Settings.Part.Parent:FindFirstChild("Humanoid")
 
 if humanoid then
     -- Box
